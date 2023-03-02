@@ -157,33 +157,23 @@ def teacher_signup(auth, db, storage):
     gender = st.selectbox('Sex', ['Male', 'Female', 'Others'])
     course = st.selectbox(label="Course", options=[
                           "B.Tech", "B.B.A", "B.C.A", "M.Tech", "MBA", "MCA"])
-    stream = st.multiselect(label="Stream/Department", options=[
+    depts = st.multiselect(label="Stream/Department", options=[
         "CSE", "CSBS", "AIML", "IOT", "ECE", "IT"])
     data = {}
-    for k, dept in enumerate(stream):
-        year = st.multiselect(
-            'Year',
-            ['1st', '2nd', '3rd', '4th'])
-
-        for j, y in enumerate(year):
-            section = st.multiselect(
-                f'Sections you are assigned for {y} year',
-                ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'])
-            secsub = {}
-            for i, val in enumerate(section):
-                secsub[dept][y][val] = st.multiselect(f'Subjects that you teach in section {val}',
-                                                      ['English', 'Maths', 'Chemistry', 'Physics', 'Computer Organisation and Architecture', 'Data Structure and Algorithms', 'Design and Analysis of Algorithms', 'Operating Systems', 'Compiler Design', 'Computer Network'])
-            yeardata[y] = secsub
-        data[dept] = yeardata
-    '''
-    dept{
-        year{
-            section{
-                subjects
-            }
-        }
-    }
-    '''
+    for ind1, dept in enumerate(depts):
+        years = st.multiselect(f'{dept} department years', [
+                            '1st', '2nd', '3rd', '4th'], key=str(ind1))
+        y = {}
+        for ind2, year in enumerate(years):
+            sections = st.multiselect(f'Sections you are assigned for {year} year', [
+                                    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], key=str(ind1) + str(ind2))
+            s = {}
+            for ind3, section in enumerate(sections):
+                subjects = st.multiselect(f'Subjects that you teach in {year} year section {section}', ['English', 'Maths', 'Chemistry', 'Physics', 'Computer Organisation and Architecture',
+                                        'Data Structure and Algorithms', 'Design and Analysis of Algorithms', 'Operating Systems', 'Compiler Design', 'Computer Network'], key=str(ind1) + str(ind2) + str(ind3))
+                s[section] = subjects
+            y[year] = s
+        data[dept] = y
     teacher_submit_button = st.button("Submit", key='teacher_submit_button')
     if teacher_submit_button:
         user = auth.create_user_with_email_and_password(email, password)
@@ -191,7 +181,7 @@ def teacher_signup(auth, db, storage):
         db.child('teacher').child(str(teacher_id)).child("name").set(name)
         db.child('teacher').child(str(teacher_id)).child("age").set(age)
         db.child('teacher').child(str(teacher_id)).child(
-            "date_of_birth").set(date_of_birth)
+            "date_of_birth").set(date_of_birth.strftime('%Y-%m-%d'))
         db.child('teacher').child(str(teacher_id)).child("phone").set(phone)
         db.child('teacher').child(str(teacher_id)).child(
             "whatsapp").set(whatsapp)
@@ -200,29 +190,9 @@ def teacher_signup(auth, db, storage):
             "password").set(password)
         db.child('teacher').child(str(teacher_id)).child("gender").set(gender)
         db.child('teacher').child(str(teacher_id)).child("course").set(course)
-        for dept, yeardata in data.items():
-            for y, sec in yeardata.items():
-                pass
-
+        db.child('teacher').child(str(teacher_id)).child("departments").set(data)
         db.child('teacher').child(str(teacher_id)).child("age").set(age)
 
-        data["teachers"][teacher_id] = {
-            "name": name,
-            "age": age,
-            "course": course,
-            "stream": stream,
-            "year": {year:
-                     {"section": {section: {
-                         "subjects": subjects
-                     }
-                     }
-                     }
-                     },
-            "phone": phone,
-            "whatsapp": whatsapp,
-            "email": email,
-            "password": password,
-        }
         st.success("Teacher account created!")
         st.info(data)
         celebrate = st.balloons()

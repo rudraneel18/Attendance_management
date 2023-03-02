@@ -6,7 +6,7 @@ from streamlit_option_menu import option_menu
 
 def Home_page():
     title = st.markdown("<h1 style='text-align: center; color: #ffa31a;'>Student Dashboard</h1>", unsafe_allow_html=True)
-    
+    cam=st.camera_input("Click your picture")
 
 
 def Edit_Details_page():

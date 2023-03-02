@@ -1,0 +1,3 @@
+pip install streamlit-webrtc
+pip install streamlit
+pip install opencv-python
