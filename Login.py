@@ -45,12 +45,14 @@ def login():
                     if role == "Student" and username == "s1" and password == "s1":
                         '''add something'''
                         login_expander.success("Logged in successfully!")
+                        return True, username, role
 
                     else:
                         not_registered = login_expander.error(
                             "Invalid credentials.")
                         time.sleep(3)
                         not_registered.empty()
+                        return False,"",""
 
             markdown = login_expander.markdown(
                 """
@@ -66,17 +68,21 @@ def login():
         signup_expander = st.expander("Register/Signup")
 
         with signup_expander:
-            signup_role = signup_expander.selectbox(
+            role = signup_expander.selectbox(
                 "Select your role", ["Student", "Teacher", "Admin"], key='signup_role')
-            if signup_role == "Student":
+            if role == "Student":
                 # returns true if no error
-                stat = student_signup(auth, db, storage)
-                if stat:
+                x = student_signup(auth, db, storage,role)
+                if x!=None:
+                    stat,username=x
                     signup_expander.empty()
-            elif signup_role == "Teacher":
-                stat = teacher_signup(auth, db, storage)
-            elif signup_role == "Admin":
-                stat = True  # admin_signup()
+            elif role == "Teacher":
+                x=teacher_signup(auth, db, storage,role)
+                if x!=None:
+                    stat,username = x
+                    signup_expander.empty()
+            elif role == "Admin":
+                stat,username = True,"123"  # admin_signup()
         return stat, username, role
 
 
@@ -87,32 +93,38 @@ data = {
 }
 
 
-def student_signup(auth, db, storage):
+def student_signup(auth, db, storage,signup_role):
     enrollment_id = st.text_input("Enrollment ID")
     name = st.text_input("Name")
-    age = st.number_input("Age", value=0)
-    course = st.text_input("Course")
-    stream = st.text_input("Stream")
+    age = st.number_input("Age",min_value=18,value=18)
+    course = st.selectbox(label="Course", options=[
+                          "B.Tech", "B.B.A", "B.C.A", "M.Tech", "MBA", "MCA"])
+    stream = st.selectbox(label="Stream/Department", options=[
+        "CSE", "CSBS", "AIML", "IOT", "ECE", "IT"])
     registration_id = st.text_input("Registration ID")
     #subjects = st.text_input("Subjects (comma separated)").split(",")
     section = st.selectbox(
         'section', ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'])
     phone = st.text_input("Phone Number")
     whatsapp = st.text_input("WhatsApp Number")
-    start_year = st.number_input("Start Year", value=2015, min_value=2015)
+    start_year = st.number_input("Start Year", value=2015, min_value=2015,max_value=datetime.datetime.now().year)
     end_year = st.number_input("End Year", value=2015, min_value=2015)
     email = st.text_input("Email")
     college_mail = st.text_input("College Email")
+    # if not college_mail.endswith("@iem.edu.in"):
+    #     st.error("enter the correct college email")
     gender = st.selectbox('Sex', ['Male', 'Female', 'Others'])
     date_of_birth = st.date_input("Date of Birth", datetime.date(2001, 11, 18))
-    adhar_number = st.number_input("Adhar Number", value=0)
+    adhar_number = st.number_input("Adhar Number",value=100000000000, min_value=100000000000,max_value=999999999999)
     #passport_number = st.text_input("GPS Location")
     password = st.text_input("Password", type="password")
     submit_button = st.button("Submit", key='student_submit_button')
     if submit_button:
         try:
-            user = auth.create_user_with_email_and_password(email, password)
-            user = auth.sign_in_with_email_and_password(email, password)
+            uid = str(enrollment_id)+f"@{signup_role.lower()}.com"
+            user = auth.create_user_with_email_and_password(uid, password)
+            user = auth.sign_in_with_email_and_password(uid, password)
+
             db.child('student').child(str(enrollment_id)).child("name").set(name)
             db.child('student').child(str(enrollment_id)).child("age").set(age)
             db.child('student').child(str(enrollment_id)).child("course").set(course)
@@ -127,25 +139,29 @@ def student_signup(auth, db, storage):
             db.child('student').child(str(enrollment_id)).child("email").set(email)
             db.child('student').child(str(enrollment_id)).child("college_mail").set(college_mail)
             db.child('student').child(str(enrollment_id)).child("gender").set(gender)
-            db.child('student').child(str(enrollment_id)).child("date_of_birth").set(date_of_birth)
+            db.child('student').child(str(enrollment_id)).child(
+                "date_of_birth").set(date_of_birth.strftime('%Y-%m-%d'))
             db.child('student').child(str(enrollment_id)).child("adhar_number").set(adhar_number)
             db.child('student').child(str(enrollment_id)).child("password").set(password)
-            storage.child(f'{enrollment_id}/records/record.csv').put('record.csv')
+            storage.child(f'{signup_role.lower()}/{str(enrollment_id)}/records/record.csv').put('record.csv')
+            #storage.child(f'{signup_role.lower()}/{str(enrollment_id)}/pictures')
             # db.child(user['student']).child(str(enrollment_id)).child("passport_number").set()
             # "subjects": subjects,
         except Exception as e:
             st.error(e)
-            return False
+            print(f"Error log \n {'-'*20}\n",e)
+            return False,"0"
 
         st.success("Student account created!")
         st.info(data)
         celebrate = st.balloons()
         time.sleep(3)
         celebrate.empty()
-        return True
+        return True,str(enrollment_id)
+    
 
 
-def teacher_signup(auth, db, storage):
+def teacher_signup(auth, db, storage,signup_role):
     teacher_id = st.text_input("Teacher ID")
     name = st.text_input("Name")
     age = st.number_input("Age", value=0)
@@ -162,39 +178,48 @@ def teacher_signup(auth, db, storage):
     data = {}
     for ind1, dept in enumerate(depts):
         years = st.multiselect(f'{dept} department years', [
-                            '1st', '2nd', '3rd', '4th'], key=str(ind1))
+            '1st', '2nd', '3rd', '4th'], key=str(ind1))
         y = {}
         for ind2, year in enumerate(years):
             sections = st.multiselect(f'Sections you are assigned for {year} year', [
-                                    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], key=str(ind1) + str(ind2))
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], key=str(ind1) + str(ind2))
             s = {}
             for ind3, section in enumerate(sections):
                 subjects = st.multiselect(f'Subjects that you teach in {year} year section {section}', ['English', 'Maths', 'Chemistry', 'Physics', 'Computer Organisation and Architecture',
-                                        'Data Structure and Algorithms', 'Design and Analysis of Algorithms', 'Operating Systems', 'Compiler Design', 'Computer Network'], key=str(ind1) + str(ind2) + str(ind3))
+                                                                                                        'Data Structure and Algorithms', 'Design and Analysis of Algorithms', 'Operating Systems', 'Compiler Design', 'Computer Network'], key=str(ind1) + str(ind2) + str(ind3))
                 s[section] = subjects
             y[year] = s
         data[dept] = y
     teacher_submit_button = st.button("Submit", key='teacher_submit_button')
     if teacher_submit_button:
-        user = auth.create_user_with_email_and_password(email, password)
-        user = auth.sign_in_with_email_and_password(email, password)
-        db.child('teacher').child(str(teacher_id)).child("name").set(name)
-        db.child('teacher').child(str(teacher_id)).child("age").set(age)
-        db.child('teacher').child(str(teacher_id)).child(
-            "date_of_birth").set(date_of_birth.strftime('%Y-%m-%d'))
-        db.child('teacher').child(str(teacher_id)).child("phone").set(phone)
-        db.child('teacher').child(str(teacher_id)).child(
-            "whatsapp").set(whatsapp)
-        db.child('teacher').child(str(teacher_id)).child("email").set(email)
-        db.child('teacher').child(str(teacher_id)).child(
-            "password").set(password)
-        db.child('teacher').child(str(teacher_id)).child("gender").set(gender)
-        db.child('teacher').child(str(teacher_id)).child("course").set(course)
-        db.child('teacher').child(str(teacher_id)).child("departments").set(data)
-        db.child('teacher').child(str(teacher_id)).child("age").set(age)
-
+        try:
+            uid = str(teacher_id)+f"@{signup_role.lower()}.com"
+            user = auth.create_user_with_email_and_password(uid, password)
+            user = auth.sign_in_with_email_and_password(uid, password)
+            db.child('teacher').child(str(teacher_id)).child("name").set(name)
+            db.child('teacher').child(str(teacher_id)).child("age").set(age)
+            db.child('teacher').child(str(teacher_id)).child(
+                "date_of_birth").set(date_of_birth.strftime('%Y-%m-%d'))
+            db.child('teacher').child(str(teacher_id)).child("phone").set(phone)
+            db.child('teacher').child(str(teacher_id)).child(
+                "whatsapp").set(whatsapp)
+            db.child('teacher').child(str(teacher_id)).child("email").set(email)
+            db.child('teacher').child(str(teacher_id)).child(
+                "password").set(password)
+            db.child('teacher').child(str(teacher_id)).child("gender").set(gender)
+            db.child('teacher').child(str(teacher_id)).child("course").set(course)
+            db.child('teacher').child(str(teacher_id)
+                                    ).child("departments").set(data)
+            db.child('teacher').child(str(teacher_id)).child("age").set(age)
+            storage.child(f'{signup_role.lower()}/{str(teacher_id)}/records/record.csv').put('record.csv')
+        # storage.child(f'{signup_role.lower()}/{str(teacher_id)}/pictures')
+        except Exception as e:
+            st.error(e)
+            print(f"Error log \n {'-'*20}\n",e)
+            return False,"0"
         st.success("Teacher account created!")
         st.info(data)
         celebrate = st.balloons()
         time.sleep(3)
         celebrate.empty()
+        return True,str(teacher_id)
