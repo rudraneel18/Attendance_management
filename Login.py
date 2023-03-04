@@ -2,27 +2,11 @@ from imports import *
 import time
 import pyrebase
 import datetime
-firebaseConfig = {
-    'apiKey': "AIzaSyAtueZZOhrfS233pBFLYtqy1THVaiO0LGA",
-    'authDomain': "attendance-management-672ad.firebaseapp.com",
-    'databaseURL': "https://attendance-management-672ad-default-rtdb.firebaseio.com",
-    'projectId': "attendance-management-672ad",
-    'storageBucket': "attendance-management-672ad.appspot.com",
-    'messagingSenderId': "970772118148",
-    'appId': "1:970772118148:web:28701f51441c515b3be0d1",
-    'measurementId': "G-4KCLJF1N65"
-}
-# Firebase Authentication
 
-
-def login():
+def login(auth, db, storage):
     '''return true or false'''
     side = st.sidebar
     stat = False
-    firebase = pyrebase.initialize_app(firebaseConfig)
-    auth = firebase.auth()
-    db = firebase.database()
-    storage = firebase.storage()
     with side:
         login_expander = st.expander("Login")
 
@@ -36,23 +20,53 @@ def login():
                 "Select your role", ["Student", "Teacher", "Admin"])
 
             submit_button = login_expander.button("Submit")
+            #forgot_password = login_expander.button("Forgot Password")
             spinner = st.spinner("Authenticating...")
 
             if submit_button:
                 with spinner:
                     # user_data = ref.child(role.lower()).get()
                     # if username in user_data and user_data[username]["password"] == password:
-                    if role == "Student" and username == "s1" and password == "s1":
+                    if role == "Student":
                         '''add something'''
-                        login_expander.success("Logged in successfully!")
-                        return True, username, role
+                        try:
+                            user=auth.sign_in_with_email_and_password(username+"@student.com",password)
+                            login_expander.success("Logged in successfully!")
+                            return True, username, role
+                        except:
+                            not_registered = login_expander.error(
+                                "Invalid credentials.")
+                            time.sleep(5)
+                            not_registered.empty()
+                            return False,"",""
+                    elif role == "Teacher":
+                        try:
+                            user=auth.sign_in_with_email_and_password(username+"@teacher.com",password)
+                            login_expander.success("Logged in successfully!")
+                            return True, username, role
+                        except:
+                            not_registered=login_expander.error("Invalid credentials")
+                            time.sleep(5)
+                            not_registered.empty()
+                            return False,"",""
+                    elif role == "Admin":
+                        try:
+                            user=auth.sign_in_with_email_and_password(username+"@admin.com",password)
+                            login_expander.success("Logged in successfully as Admin!")
+                            return True, username, role
+                        except:
+                            not_registered=login_expander.error("Invalid credentials")
+                            time.sleep(5)
+                            not_registered.empty()
+                            return False,"",""
 
-                    else:
-                        not_registered = login_expander.error(
-                            "Invalid credentials.")
-                        time.sleep(3)
-                        not_registered.empty()
-                        return False,"",""
+            #if forgot_password:
+            #    username=st.text_input("Enter your unique ID/ enrollment ID/ Teacher ID")
+            #    reset_password = st.button("Reset Password")
+            #    if username and reset_password:
+            #        college_email=db.child('student').child(username).get('college_mail')
+            #        st.info(college_email)
+                    #user = auth.send_password_reset_email(college_email)
 
             markdown = login_expander.markdown(
                 """
@@ -136,6 +150,7 @@ def student_signup(auth, db, storage,signup_role):
             db.child('student').child(str(enrollment_id)).child("whatsapp").set(whatsapp)
             db.child('student').child(str(enrollment_id)).child("start_year").set(start_year)
             db.child('student').child(str(enrollment_id)).child("end_year").set(end_year)
+            db.child('student').child(str(enrollment_id)).child("current_year").set(datetime.datetime.now().year - start_year)
             db.child('student').child(str(enrollment_id)).child("email").set(email)
             db.child('student').child(str(enrollment_id)).child("college_mail").set(college_mail)
             db.child('student').child(str(enrollment_id)).child("gender").set(gender)
