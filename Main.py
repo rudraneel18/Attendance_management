@@ -1,8 +1,7 @@
 from imports import *
 
 
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in']=False
+
 def main():
     firebaseConfig = {
     'apiKey': "AIzaSyAtueZZOhrfS233pBFLYtqy1THVaiO0LGA",
@@ -18,14 +17,18 @@ def main():
     auth = firebase.auth()
     db = firebase.database()
     storage = firebase.storage()
+    if 'logged_in' not in st.session_state:
+        st.session_state['logged_in'] = False
+    if 'username' not in st.session_state:
+        st.session_state['username']=None
+    if 'role' not in st.session_state:
+        st.session_state['role']=None
     if not st.session_state.logged_in:
         login_status,username,role=Login.login(auth, db, storage)
         if login_status:
             st.session_state.logged_in=login_status
-            if 'username' not in st.session_state:
-                st.session_state['username']=username
-            if 'role' not in st.session_state:
-                st.session_state['role']=role.lower()
+            st.session_state['username']=username
+            st.session_state['role']=role.lower()
     if st.session_state.logged_in:
-        Student_Dashboard.student_dashboard(st.session_state.username, st.session_state.role, db, storage, auth)
+        Student_Dashboard.student_dashboard(st.session_state['username'], st.session_state['role'], db, storage, auth)
 main()

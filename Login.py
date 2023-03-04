@@ -13,9 +13,9 @@ def login(auth, db, storage):
         with login_expander:
             login_heading = login_expander.markdown(
                 "Please enter your credentials to log in.")
-            username = login_expander.text_input("Username", key='username')
+            username = login_expander.text_input("Username",key=1)
             password = login_expander.text_input(
-                "Password", type='password', key='password')
+                "Password", type='password',key=2)
             role = login_expander.selectbox(
                 "Select your role", ["Student", "Teacher", "Admin"])
 
