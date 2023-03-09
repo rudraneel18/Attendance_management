@@ -30,5 +30,10 @@ def main():
             st.session_state['username']=username
             st.session_state['role']=role.lower()
     if st.session_state.logged_in:
-        Student_Dashboard.student_dashboard(st.session_state['username'], st.session_state['role'], db, storage, auth)
+        if st.session_state.role=='student':
+            Student_Dashboard.student_dashboard(st.session_state['username'], st.session_state['role'], db, storage, auth)
+        if st.session_state.role=='teacher':
+            Teacher_Dashboard.teacher_dashboard(st.session_state['username'], st.session_state['role'], db, storage, auth)
+
+
 main()

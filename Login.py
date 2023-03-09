@@ -13,9 +13,9 @@ def login(auth, db, storage):
         with login_expander:
             login_heading = login_expander.markdown(
                 "Please enter your credentials to log in.")
-            username = login_expander.text_input("Username",key=1)
+            username = login_expander.text_input("Username",key="xxx")
             password = login_expander.text_input(
-                "Password", type='password',key=2)
+                "Password", type='password',key="xxxx")
             role = login_expander.selectbox(
                 "Select your role", ["Student", "Teacher", "Admin"])
 
@@ -189,7 +189,7 @@ def teacher_signup(auth, db, storage,signup_role):
     course = st.selectbox(label="Course", options=[
                           "B.Tech", "B.B.A", "B.C.A", "M.Tech", "MBA", "MCA"])
     depts = st.multiselect(label="Stream/Department", options=[
-        "CSE", "CSBS", "AIML", "IOT", "ECE", "IT"])
+        "CSE", "CSBS", "AIML", "IOT", "ECE", "IT"],)
     data = {}
     for ind1, dept in enumerate(depts):
         years = st.multiselect(f'{dept} department years', [
@@ -213,19 +213,14 @@ def teacher_signup(auth, db, storage,signup_role):
             user = auth.sign_in_with_email_and_password(uid, password)
             db.child('teacher').child(str(teacher_id)).child("name").set(name)
             db.child('teacher').child(str(teacher_id)).child("age").set(age)
-            db.child('teacher').child(str(teacher_id)).child(
-                "date_of_birth").set(date_of_birth.strftime('%Y-%m-%d'))
+            db.child('teacher').child(str(teacher_id)).child("date_of_birth").set(date_of_birth.strftime('%Y-%m-%d'))
             db.child('teacher').child(str(teacher_id)).child("phone").set(phone)
-            db.child('teacher').child(str(teacher_id)).child(
-                "whatsapp").set(whatsapp)
+            db.child('teacher').child(str(teacher_id)).child("whatsapp").set(whatsapp)
             db.child('teacher').child(str(teacher_id)).child("email").set(email)
-            db.child('teacher').child(str(teacher_id)).child(
-                "password").set(password)
+            db.child('teacher').child(str(teacher_id)).child("password").set(password)
             db.child('teacher').child(str(teacher_id)).child("gender").set(gender)
             db.child('teacher').child(str(teacher_id)).child("course").set(course)
-            db.child('teacher').child(str(teacher_id)
-                                    ).child("departments").set(data)
-            db.child('teacher').child(str(teacher_id)).child("age").set(age)
+            db.child('teacher').child(str(teacher_id)).child("departments").set(data)
             storage.child(f'{signup_role.lower()}/{str(teacher_id)}/records/record.csv').put('record.csv')
         # storage.child(f'{signup_role.lower()}/{str(teacher_id)}/pictures')
         except Exception as e:
