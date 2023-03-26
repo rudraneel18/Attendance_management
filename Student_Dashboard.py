@@ -1,4 +1,6 @@
 from imports import *
+from streamlit_option_menu import option_menu
+import Registration
 
 def student_dashboard(username, role, db, storage, auth):
     
@@ -98,15 +100,7 @@ def student_dashboard(username, role, db, storage, auth):
             st.write(st.session_state.section)
 
         x = st.columns([1, 1, 1])
-        cam_inp = x[1].camera_input("Register your images here")
-        camcol1, camcol2, camcol3 = st.columns([1,1,1.5])
-        if cam_inp:
-            with camcol1:
-                st.image(cam_inp)
-            with camcol2 :
-                st.image(cam_inp)
-            with camcol3 and cam_inp:
-                st.image(cam_inp)   
+        x[1] = Registration.register()
             
     def Records_page(username, role, db, storage):
         st.write(pd.read_csv('record.csv', index_col=False))
