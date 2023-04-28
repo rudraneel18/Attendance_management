@@ -35,5 +35,5 @@ def main():
         if st.session_state.role=='teacher':
             Teacher_Dashboard.teacher_dashboard(st.session_state['username'], st.session_state['role'], db, storage, auth)
 
-
-main()
+if __name__=="__main__":
+    main()

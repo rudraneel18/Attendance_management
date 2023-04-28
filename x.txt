@@ -1,3 +1,6 @@
 pip install streamlit-webrtc
 pip install streamlit
 pip install opencv-python
+pip install -U hydralit
+pip install streamlit-option-menu
+pip install protobuf==3.20.3
