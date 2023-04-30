@@ -2,12 +2,12 @@
     "login_details":{
         "username":"admin",
         "password":"admin",
-        "logged_in": true
+        "logged_in": true,
+        "role":["student","teacher",["admin"]]
     },
     "user_details":{
-            "user_type":["student","teacher",["admin"]],
             "picture_taken":true,
-            "dict":"dict"
+            "matched":false,             "attendance":false,"dic":"dict"
         
         }
     

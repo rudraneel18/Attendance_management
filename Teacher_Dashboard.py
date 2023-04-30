@@ -6,34 +6,43 @@ from streamlit_option_menu import option_menu
 def teacher_dashboard(username, role, db, storage, auth):
     st.success("You are logged in as a Teacher")
     #################################session_states############################
-    data = db.child("teacher").child(username).get().val()    
-    if 'picture_clicked' not in st.session_state:
-        st.session_state.picture_clicked = False
-    if 'matched' not in st.session_state:
-        st.session_state.matched = False
-    if 'attendance' not in st.session_state:
-        st.session_state.attendance = False
-    if 'usersname' not in st.session_state:
-        st.session_state.usersname = data["name"]
-    if 'teacher_id' not in st.session_state:
-        st.session_state.teacher_id = username
-    if 'age' not in st.session_state:
-        st.session_state.age = data["age"]
-    if 'date_of_birth' not in st.session_state:
-        st.session_state.date_of_birth = data["date_of_birth"]
-    if 'phone' not in st.session_state:
-        st.session_state.phone = data["phone"]
-    if 'whatsapp' not in st.session_state:
-        st.session_state.whatsapp = data["whatsapp"]
-    if 'email' not in st.session_state:
-        st.session_state.email = data["email"]
-    if 'gender' not in st.session_state:
-        st.session_state.gender=data["gender"]
-    if 'course' not in st.session_state:
-        st.session_state.course=data["course"]
-    if 'departments' not in st.session_state:
-        st.session_state.departments=data["departments"]
-    #st.write(st.session_state.departments)
+    data = db.child("teacher").child(username).get().val()
+    if 'user_details' not in st.session_state:
+        id= st.session_state.login_details["username"]
+        st.session_state.user_details={"picture_taken":True,
+                                        "matched":False,
+                                        "attendance":False,
+                                        "teacher_id":id
+                                        }
+        st.session_state.user_details.update(data)  
+    st.write(st.session_state.user_details)
+    # if 'picture_clicked' not in st.session_state:
+    #     st.session_state.picture_clicked = False
+    # if 'matched' not in st.session_state:
+    #     st.session_state.matched = False
+    # if 'attendance' not in st.session_state:
+    #     st.session_state.attendance = False
+    # if 'usersname' not in st.session_state:
+    #     st.session_state.usersname = data["name"]
+    # if 'teacher_id' not in st.session_state:
+    #     st.session_state.teacher_id = username
+    # if 'age' not in st.session_state:
+    #     st.session_state.age = data["age"]
+    # if 'date_of_birth' not in st.session_state:
+    #     st.session_state.date_of_birth = data["date_of_birth"]
+    # if 'phone' not in st.session_state:
+    #     st.session_state.phone = data["phone"]
+    # if 'whatsapp' not in st.session_state:
+    #     st.session_state.whatsapp = data["whatsapp"]
+    # if 'email' not in st.session_state:
+    #     st.session_state.email = data["email"]
+    # if 'gender' not in st.session_state:
+    #     st.session_state.gender=data["gender"]
+    # if 'course' not in st.session_state:
+    #     st.session_state.course=data["course"]
+    # if 'departments' not in st.session_state:
+    #     st.session_state.departments=data["departments"]
+    # st.write(st.session_state.departments)
 
     def Home_page(username, role, db, storage):
         title = st.markdown(
@@ -47,21 +56,21 @@ def teacher_dashboard(username, role, db, storage, auth):
 
     def Details_page(username, role, db, storage):
         st.subheader("Teacher Details")
-        st.write(f"Welcome {st.session_state.usersname}! You are logged in as a {role}.")
+        st.write(f"Welcome {st.session_state.user_details['name']}! You are logged in as a {role}.")
         col1, col2= st.columns([1, 1])
         with col1:
-            st.write(f"Name:        {st.session_state.usersname}")
-            st.write(f"Teacher ID:      {st.session_state.teacher_id}")
+            st.write(f"Name:\t\t{st.session_state.user_details['name']}")
+            st.write(f"Teacher ID:\t\t{st.session_state.user_details['teacher_id']}")
             #st.write("Adhar No.:")
-            st.write(f"Email ID: \t{st.session_state.email}")
-            st.write(f"Age: \t{st.session_state.age}")
-            st.write(f"Gender: \t{st.session_state.gender}")
+            st.write(f"Email ID:\t\t{st.session_state.user_details['email']}")
+            st.write(f"Age: \t\t{st.session_state.user_details['age']}")
+            st.write(f"Gender: \t\t{st.session_state.user_details['gender']}")
             #st.write("Subjects:")
         with col2:
-            st.write(f"DOB: \t{st.session_state.date_of_birth}")
-            st.write(f"Phone No.: \t{st.session_state.phone}")
-            st.write(f"WhatsApp No.: \t{st.session_state.whatsapp}")
-            st.write(f"Course: \t{st.session_state.course}")
+            st.write(f"DOB: \t\t{st.session_state.user_details['date_of_birth']}")
+            st.write(f"Phone No.: \t\t{st.session_state.user_details['phone']}")
+            st.write(f"WhatsApp No.: \t\t{st.session_state.user_details['whatsapp']}")
+            st.write(f"Course: \t\t{st.session_state.user_details['course']}")
             #st.write(f"Stream: \t{st.session_state.stream}")
             #st.write(f"Section: \t{st.session_state.section}")
         
