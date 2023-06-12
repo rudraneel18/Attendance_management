@@ -70,6 +70,10 @@ def student_dashboard(username, role, db, storage, auth):
 
         x = st.columns([1, 1, 1])
         x[1] = Registration.register()
+        storage.child(f'student/{str(st.session_state.user_details["enrollment_id"])}/images/reg_img1.jpg').put(fr"images\1.jpg")
+        storage.child(f'student/{str(st.session_state.user_details["enrollment_id"])}/images/reg_img2.jpg').put(fr"images\2.jpg")
+        storage.child(f'student/{str(st.session_state.user_details["enrollment_id"])}/images/reg_img3.jpg').put(fr"images\3.jpg")
+        
             
     def Records_page(username, role, db, storage):
         st.write(pd.read_csv('record.csv', index_col=False))

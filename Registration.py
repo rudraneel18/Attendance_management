@@ -1,12 +1,13 @@
 from imports import *
-
+import os
+import time
 def register():    
     FRAME_WINDOW = st.image([])
     def show_camera():
         pic_no = 1
         face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         video_feed = cv2.VideoCapture(0)
-        while run and pic_no <= 1:
+        while run and pic_no <= 3:
             _, frame = video_feed.read()
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             img = frame.copy()
@@ -38,9 +39,12 @@ def register():
                     cv2.putText(frame, f"Click Now", (530, height - 40),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                     cropped = img[y:y+h, x:x+w]
-                    filename = f"images/1.jpg"
+                    if not os.path.exists(f"images"):
+                        os.makedirs(f"images")
+                    filename = f"images/{pic_no}.jpg"
                     cv2.imwrite(filename, cropped)
                     pic_no += 1
+                    time.sleep(2)
             FRAME_WINDOW.image(frame)
 
         video_feed.release()

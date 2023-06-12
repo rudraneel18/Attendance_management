@@ -1,5 +1,6 @@
 from imports import * 
 from streamlit_option_menu import option_menu
+import Registration
 
 
 
@@ -12,10 +13,10 @@ def teacher_dashboard(username, role, db, storage, auth):
         st.session_state.user_details={"picture_taken":True,
                                         "matched":False,
                                         "attendance":False,
-                                        "teacher_id":id
+                                        "user_id":id
                                         }
         st.session_state.user_details.update(data)  
-    st.write(st.session_state.user_details)
+    #st.write(st.session_state.user_details)
     # if 'picture_clicked' not in st.session_state:
     #     st.session_state.picture_clicked = False
     # if 'matched' not in st.session_state:
@@ -24,8 +25,8 @@ def teacher_dashboard(username, role, db, storage, auth):
     #     st.session_state.attendance = False
     # if 'usersname' not in st.session_state:
     #     st.session_state.usersname = data["name"]
-    # if 'teacher_id' not in st.session_state:
-    #     st.session_state.teacher_id = username
+    # if 'user_id' not in st.session_state:
+    #     st.session_state.user_id = username
     # if 'age' not in st.session_state:
     #     st.session_state.age = data["age"]
     # if 'date_of_birth' not in st.session_state:
@@ -60,31 +61,39 @@ def teacher_dashboard(username, role, db, storage, auth):
         col1, col2= st.columns([1, 1])
         with col1:
             st.write(f"Name:\t\t{st.session_state.user_details['name']}")
-            st.write(f"Teacher ID:\t\t{st.session_state.user_details['teacher_id']}")
+            st.write(f"Teacher ID:\t\t{st.session_state.user_details['user_id']}")
             #st.write("Adhar No.:")
             st.write(f"Email ID:\t\t{st.session_state.user_details['email']}")
             st.write(f"Age: \t\t{st.session_state.user_details['age']}")
             st.write(f"Gender: \t\t{st.session_state.user_details['gender']}")
-            #st.write("Subjects:")
-        with col2:
             st.write(f"DOB: \t\t{st.session_state.user_details['date_of_birth']}")
             st.write(f"Phone No.: \t\t{st.session_state.user_details['phone']}")
             st.write(f"WhatsApp No.: \t\t{st.session_state.user_details['whatsapp']}")
+            #st.write("Subjects:")
+        with col2:
+            
             st.write(f"Course: \t\t{st.session_state.user_details['course']}")
+            departments=st.session_state.user_details['departments']
+            for department,years in departments.items():
+                st.write(department)
+                for year, sections in years.items():
+                    st.write(year)
+                    for section, subjects in sections.items():
+                        st.write(section+": "+", ".join(subjects))
+                        
+                        
+                        
+            
             #st.write(f"Stream: \t{st.session_state.stream}")
             #st.write(f"Section: \t{st.session_state.section}")
         
 
         x = st.columns([1, 1, 1])
-        cam_inp = x[1].camera_input("Register your images here")
-        camcol1, camcol2, camcol3 = st.columns([1, 1, 1.5])
-        if cam_inp:
-            with camcol1:
-                st.image(cam_inp)
-            with camcol2:
-                st.image(cam_inp)
-            with camcol3 and cam_inp:
-                st.image(cam_inp)
+        x[1] = Registration.register()
+        storage.child(f'teacher/{str(st.session_state.user_details["user_id"])}/images/reg_img1.jpg').put(fr"images\1.jpg")
+        storage.child(f'teacher/{str(st.session_state.user_details["user_id"])}/images/reg_img2.jpg').put(fr"images\2.jpg")
+        storage.child(f'teacher/{str(st.session_state.user_details["user_id"])}/images/reg_img3.jpg').put(fr"images\3.jpg")
+        
 
     def Records_page(username, role, db, storage):
         st.write(pd.read_csv('record.csv', index_col=False))

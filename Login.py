@@ -144,6 +144,7 @@ def student_signup(auth, db, storage,signup_role):
             db.child('student').child(str(enrollment_id)).child("course").set(course)
             db.child('student').child(str(enrollment_id)).child("stream").set(stream)
             db.child('student').child(str(enrollment_id)).child("enrollment_id").set(enrollment_id)
+            db.child('student').child(str(enrollment_id)).child("user_id").set(enrollment_id)
             db.child('student').child(str(enrollment_id)).child("registration_id").set(registration_id)
             db.child('student').child(str(enrollment_id)).child("section").set(section)
             db.child('student').child(str(enrollment_id)).child("phone").set(phone)
